@@ -1,0 +1,17 @@
+@import url(../styles/global.css);
+
+/* Custom buttonset css to make 2 columns */
+.buttonset{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+}
+.col1 button, .col2 button, .col3 button{
+    width: 250px;
+    height: 50px;
+    margin: 10px;
+    font-family: '8bitpixelised';
+    font-size: 130%;
+    float: left;
+}

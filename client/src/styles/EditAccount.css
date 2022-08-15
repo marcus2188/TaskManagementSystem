@@ -1,0 +1,33 @@
+@import url(../styles/global.css);
+
+.hstack{
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    height: auto;
+    margin: 20px;
+}
+.currentside{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-right: 10px;
+    padding: 10px;
+    border-right: 3px dotted black;
+}
+.editside{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-left: 10px;
+    padding: 10px;
+}
+.currentside label{
+    display: block;
+}
+.editside label,input,Select{
+    display: block;
+}
+.editside input{
+    width: auto;
+}

@@ -1,0 +1,37 @@
+@import url(../styles/global.css);
+
+/* TABLE AND RELATED CSS */
+table{
+    width: auto;
+    height: auto;
+}
+thead{
+    font-family: '8bitpixelised';
+    font-size: x-large;
+}
+th{
+    padding: 10px;
+    border: 3px solid black;
+}
+tbody{
+    font-family: '8bitpixelised';
+    font-size: medium;
+}
+td{
+    padding: 10px;
+    border: 1px solid black;
+}
+.actionbuttonset{
+    display: inline-block;
+}
+.actionbutton{
+    font-family: '8bitpixelised';
+    float: left;
+    width: auto;
+    height: auto;
+}
+.actionbutton:hover{
+    cursor: pointer;
+}
+
+
