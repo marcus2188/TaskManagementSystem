@@ -39,7 +39,7 @@ function pipeResponseAsAccountList(objlist){
                 if(acc.username===obj.username){
                     acc.accessGroups.push(obj.accessGroups);
                 }
-            })
+            })      
         }
     });
     return mylist;

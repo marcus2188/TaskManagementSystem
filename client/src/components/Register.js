@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import LoginService from "../services/LoginService";
+import QueryService from '../services/QueryService';
 import '../styles/global.css';
 import { useNavigate } from "react-router-dom";
 
@@ -7,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 export default function Register(){
     // Services
     const loginService = new LoginService();
+    const queryService = new QueryService();
 
     // Navigation hooks and functions
     const navigate = useNavigate();
@@ -78,6 +80,19 @@ export default function Register(){
             setEInputValid(0);
         }
     }, [UnameR, PwordR, EmailR]);
+
+    // Routeguard function
+    const routeguard = async () => {
+        const account = await queryService.checkAccessLevel({username: JSON.parse(sessionStorage.getItem('token')).token.username});
+        if(!account.accessGroups.includes('admin')){
+            navigate('/');
+        }
+    }
+
+    // Run on startup
+    React.useEffect(() => {
+        routeguard();
+    }, []);
 
     // JSX
     return (

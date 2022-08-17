@@ -51,7 +51,7 @@ export default function Login({setToken}) {
       <form className="pane" onSubmit={handlesubmitLogin} id='loginform'>
         <div className='hearticon'></div>
         <h1>Task Management System</h1>
-        <h2 className={usernameInputBoxValid===0? 'normallabel' : 'invalidlabel'}>{usernameInputBoxValid===-1? 'Wrong inputs/disabled account' : 'Good day yall'}</h2>
+        <h2 className={usernameInputBoxValid===0? 'normallabel' : 'invalidlabel'}>{usernameInputBoxValid===-1? 'Wrong inputs somewhere' : 'Good day yall'}</h2>
         <h2>Please sign into your account</h2>
         <label className={usernameInputBoxValid===0? 'normallabel' : 'invalidlabel'}>{usernameInputBoxValid===-1? 'Wrong Username or Password' : (usernameInputBoxValid===-2? 'Username cannot be blank' : 'Username:')}</label>
         <input className={usernameInputBoxValid===0? 'normalinputbox' : 'invalidinputbox'} type="text" onChange={(e)=>{setUname(e.target.value)}} placeholder="Username here please: "/>

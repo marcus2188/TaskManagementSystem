@@ -118,8 +118,17 @@ export default function EditAccount(){
         setReferencedAccount(accdata);
     }
 
+    // Routeguard function
+    const routeguard = async () => {
+        const account = await queryService.checkAccessLevel({username: JSON.parse(sessionStorage.getItem('token')).token.username});
+        if(!account.accessGroups.includes('admin')){
+            navigate('/');
+        }
+    }
+
     // Call these on component startup
     React.useEffect(() => {
+        routeguard();
         getAccount();
         getAllGroups();
     }, [])
