@@ -1,13 +1,30 @@
-/* SERVER.JS IS THE ENTRY POINT FOR BACKEND AND DATABASE */
-const exp = require('express')
+/* SERVER.JS IS THE ENTRY POINT FOR BACKEND, RUNS ASYNC AND CONTINUOUSLY */
+
+// Imports
+const { pipeResponseAsAccountList} = require('./models/Account');
+const { pipeResponseAsTaskList} = require('./models/Task');
+const { pipeResponseAsApplicationList} = require('./models/Application');
+const { pipeResponseAsPlanList} = require('./models/Plan');
+const {convertToDDMMYYYY} = require('./utils/datehandler');
+const exp = require('express');
 const crs = require('cors');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const app = exp();
 const bcrypt = require('bcrypt');
-const { pipeResponseAsAccountList, pipeGenericObjToAccountObj } = require('./models/Account');
+
+// Express server use cors, bodyparser and start listening at port 3001
 app.use(crs());
 app.use(bodyParser.json());
+app.listen(3001, () => console.log('[SUCCESS] Express server up and running'));
+
+// RUN FOREVER PORTION
+// Create MYSQL connection for db
+const conn = mysql.createConnection({host: 'localhost', user: 'root', password: 'conjugatebase', database: 'nodelogin'});
+conn.connect((err) =>{
+    if(err) throw err;
+    console.log('[SUCCESS] MYSQL DB ready');
+});
 
 // Begin receiving POST requests at endpoint /login
 app.post('/login', (req, res)=>{
@@ -22,20 +39,20 @@ app.post('/login', (req, res)=>{
                         throw er;
                     }else{
                         if(resu[0].status===1){
-                            console.log(req.body.Uname + " has logged into the system");
+                            console.log("[SUCCESS] " + req.body.Uname + " has logged into the system");
                             res.send({token: {username: req.body.Uname}});
                         }else{
-                            console.log(req.body.Uname + " has been disabled sadly");
+                            console.log("[FAIL] " + req.body.Uname + " logged in but is disabled");
                             res.send({undefined: undefined});
                         }
                     }
                 })
             }else{
-                console.log("[ERROR] Invalid Username or Password: "+ req.body.Uname);
+                console.log("[FAIL] Invalid Username or Password: "+ req.body.Uname);
                 res.send({undefined: undefined});
             }
         }else{
-            console.log("[ERROR] Invalid Username or Password: "+ req.body.Uname);
+            console.log("[FAIL] Invalid Username or Password: "+ req.body.Uname);
             res.send({undefined: undefined});
         }
     });
@@ -99,16 +116,41 @@ app.post('/addgroup', (req, res)=>{
 
 // Update account details, one cannot change account status and accessGroup in here
 app.post('/updateprofile', (req, res)=>{
-    const salt = 10;
-    const hashedpassword = bcrypt.hashSync(req.body.password, salt);
-    let myquerystr = `UPDATE accounts SET password = '${hashedpassword}', email = '${req.body.email}' WHERE username = '${req.body.username}'`
-    let query = conn.query(myquerystr, (err, result)=>{
+    if(req.body.password.length===0 && req.body.email.length!=0){
+        let myquerystr = `UPDATE accounts SET email = '${req.body.email}' WHERE username = '${req.body.username}'`
+        let query = conn.query(myquerystr, (err, result)=>{
         if(err){
             throw err;
         }else{
             console.log(req.body.username + " updated their account details");
         }
-    });
+        });
+    }
+    if(req.body.password.length!=0 && req.body.email.length===0){
+        const salt = 10;
+        const hashedpassword = bcrypt.hashSync(req.body.password, salt);
+        let myquerystr = `UPDATE accounts SET password = '${hashedpassword}' WHERE username = '${req.body.username}'`
+        let query = conn.query(myquerystr, (err, result)=>{
+            if(err){
+                throw err;
+            }else{
+                console.log(req.body.username + " updated their account details");
+            }
+        });
+    }
+    if(req.body.password.length!=0 && req.body.email.length!=0){
+        const salt = 10;
+        const hashedpassword = bcrypt.hashSync(req.body.password, salt);
+        let myquerystr = `UPDATE accounts SET password = '${hashedpassword}', email = '${req.body.email}' WHERE username = '${req.body.username}'`
+        let query = conn.query(myquerystr, (err, result)=>{
+            if(err){
+                throw err;
+            }else{
+                console.log(req.body.username + " updated their account details");
+            }
+        });
+    }
+    
 })
 
 // get all accounts and access for usermanagement page by inner joining 2 tables
@@ -180,29 +222,172 @@ app.post('/updateAcc', (req, res)=>{
     });
 })
 
-app.listen(3001, () => console.log('API is running on http://localhost:3001/login'));
+// get all tasks and their information
+app.post('/getAllTasks', (req, res)=>{
+    let thisquery = `SELECT * FROM task`
+    let query = conn.query(thisquery, (err, result)=>{
+        if(err){
+            throw err;
+        }else{
+            res.send(pipeResponseAsTaskList(result));
+        }
+    });
+})
 
-// create database connection
-const conn = mysql.createConnection({host: 'localhost', user: 'root', password: 'conjugatebase', database: 'nodelogin'});
-conn.connect((err) =>{
-    if(err) throw err;
-    console.log('Mysql Connected...');
-});
+// get all apps and their information
+app.post('/getAllApps', (req, res)=>{
+    let thisquery = `SELECT * FROM application`
+    let query = conn.query(thisquery, (err, result)=>{
+        if(err){
+            throw err;
+        }else{
+            res.send(pipeResponseAsApplicationList(result));
+        }
+    });
+})
 
-// test manual insert a new account, bare in mind need to run this tgt with server startup
-// let myquerystr = "INSERT INTO accounts (username, password, email) VALUES ('maxverstappen', 'stunns', 'max@gg.com')"
-// let query = conn.query(myquerystr, (err, result)=>{
-//     if(err) throw err;
-// });
-// let myquerystr = "INSERT INTO access (id, accessright) VALUES (12, 'user')"
-// let query = conn.query(myquerystr, (err, result)=>{
-//     if(err) throw err;
-// });
+// get all plans and their information
+app.post('/getAllPlans', (req, res)=>{
+    let thisquery = `SELECT * FROM plan`
+    let query = conn.query(thisquery, (err, result)=>{
+        if(err){
+            throw err;
+        }else{
+            res.send(pipeResponseAsPlanList(result));
+        }
+    });
+})
 
-// test variable insert
-// accounts = [['maxverstappen', 'stunns', 'max@gg.com'], ['meganfox', 'ssns', 'mmg@gg.com'], ['marcus', 'ffdns', 'mrc@gg.com']];
-// let myquerystr = "INSERT INTO accounts (username, password, email) VALUES ?"
-// let query = conn.query(myquerystr, [accounts], (err, result)=>{
-//     if(err) throw err;
-// });
+// get task details
+app.post('/getTask', (req, res)=>{
+    let thisquery = `SELECT * FROM task WHERE Task_name = '${req.body.taskname}'`
+    let query = conn.query(thisquery, (err, result)=>{
+        if(err){
+            throw err;
+        }else{
+            res.send(pipeResponseAsTaskList(result)[0]);
+        }
+    });
+})
 
+// get plans in app
+app.post('/getPlansInApp', (req, res)=>{
+    let thisquery = `SELECT * FROM plan WHERE Plan_App_Acronym = '${req.body.appacro}'`
+    let query = conn.query(thisquery, (err, result)=>{
+        if(err){
+            throw err;
+        }else{
+            res.send(pipeResponseAsPlanList(result));
+        }
+    });
+})
+
+// add apps
+app.post('/addApp', (req, res)=>{
+    let thisquery = `SELECT * FROM application WHERE App_Acronym = '${req.body.appAcro}'`
+    let query = conn.query(thisquery, (err, result)=>{
+        if(err){
+            throw err;
+        }else{
+            if(result.length===0){
+                let dequery = `INSERT INTO application(App_Acronym, App_Description, App_Rnumber, App_startDate, App_endDate, App_permit_Open, App_permit_toDoList, App_permit_Doing, App_permit_Done, App_permit_Create) VALUES('${req.body.appAcro}', '${req.body.appDesc}', '${req.body.apprno}', '${convertToDDMMYYYY(req.body.appStartDate)}', '${convertToDDMMYYYY(req.body.appEndDate)}', '${req.body.appPermitOpen}', '${req.body.appPermitTodo}', '${req.body.appPermitDoing}', '${req.body.appPermitDone}', '${req.body.appPermitCreate}')`
+                let q = conn.query(dequery, (er, re) => {
+                    if(er){
+                        res.send({operationStatus: 'FAIL', reason: er.code});
+                    }else{
+                        console.log("[SUCCESS] Added an Application");
+                        res.send({operationStatus: 'SUCCESS', reason: ''});
+                    }
+                })
+            }else{
+                console.log("[FAIL] App Acro already exists");
+                res.send({operationStatus: 'failed', reason: 'appacro already exists'});
+            }
+        }
+    });
+})
+
+// add a task
+app.post('/addTask', (req, res)=>{
+    let rnumberquery = `SELECT App_Rnumber from application WHERE App_Acronym = '${req.body.taskAppAcro}'`
+    let q = conn.query(rnumberquery, (er, re) =>{
+        if(er){
+            res.send({operationStatus: 'FAIL', reason: er.code});
+        }else{
+            let disquery = `INSERT INTO task(Task_name, Task_description, Task_notes, Task_id, Task_plan, Task_App_Acronym, Task_state, Task_creator, Task_owner, Task_createDate) VALUES ('${req.body.tname}', '${req.body.tdesc}', '${req.body.tnotes}', '${req.body.taskAppAcro+'_'+re[0].App_Rnumber}', '${req.body.taskPlan}', '${req.body.taskAppAcro}', 'open', '${req.body.curuser}', '', '${req.body.curdate}')`
+            let qq = conn.query(disquery, (err, result) => {
+                if(err){
+                    console.log("[FAIL] Error caught: " + err.code);
+                    res.send({operationStatus: 'FAIL', reason: err.code});
+                }else{
+                    let mequery = `UPDATE application SET App_Rnumber = ${re[0].App_Rnumber+1} WHERE App_Acronym = '${req.body.taskAppAcro}'`
+                    let qqq = conn.query(mequery, (errr, ress) => {
+                        if(errr){
+                            res.send({operationStatus: 'FAIL', reason: errr.code});
+                        }else{
+                            console.log("[SUCCESS] New Task Added");
+                            res.send({operationStatus: 'SUCCESS', reason: ''});
+                        }
+                    })
+                }
+            })
+        }
+    })
+})
+
+// check if user is in the group
+app.post('/getgroup', (req, res)=>{
+    let myquerystr = `SELECT * FROM access WHERE username = '${req.body.username}'`
+    let query = conn.query(myquerystr, (err, result)=>{
+        if(err){
+            throw err;
+        }else{
+            const newlist = [];
+            result.forEach(r => {
+                newlist.push(r.accessGroups)
+            })
+            if(newlist.includes(req.body.group)){
+                res.send({token: {found: true}})
+            }else{
+                res.send({token: {found: false}})
+            }
+        }
+    });
+})
+
+// add Plans
+app.post('/addPlan', (req, res)=>{
+    if(req.body.planMvpName.length!==0 && req.body.planStartDate.length!==0 && req.body.planEndDate.length!==0 && req.body.planAppAcro.length!==0){
+        conn.query(`SELECT * from plan WHERE Plan_MVP_Name = '${req.body.planMvpName}'`, (err, result)=>{
+            if(result.length===0){
+                conn.query(`INSERT INTO plan(Plan_MVP_Name, Plan_startDate, Plan_endDate, Plan_App_Acronym) VALUES('${req.body.planMvpName}', '${convertToDDMMYYYY(req.body.planStartDate)}', '${convertToDDMMYYYY(req.body.planEndDate)}', '${req.body.planAppAcro}')`, (err2, result2) => {
+                    if(err2){
+                        res.send({operationStatus: 'FAIL', reason: err2.code});
+                    }else{
+                        console.log("[SUCCESS] New Plan Added");
+                        res.send({operationStatus: 'SUCCESS', reason: ''});
+                    }
+                })
+            }else{
+                console.log("[FAIL] Plan MVP name already exists during add plan");
+                res.send({operationStatus: 'FAIL', reason: 'MVPNAMEALREADYEXIST'});
+            }
+        });
+    }else{
+        console.log("[FAIL] Invalid plan inputs during add plan");
+        res.send({operationStatus: 'FAIL', reason: 'INVALIDINPUT'});
+    }
+    
+})
+
+// shift Task
+app.post('/shiftState', (req, res)=>{
+    let thisquery = `UPDATE task SET Task_state = '${req.body.tostate}' WHERE Task_name = '${req.body.taskname}'`
+    conn.query(thisquery, (err, result)=>{
+        if(err){
+            throw err;
+        }else{
+            console.log("[SUCCESS] A task state is updated");
+        }
+    });
+})

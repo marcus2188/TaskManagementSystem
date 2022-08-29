@@ -128,4 +128,11 @@ buttonset-1line for linear arrangement*/
     background-image: url('../assets/images/pixelheart.png');
     background-size: cover;
 }
+.selectionset{
+    display: inline-block;
+}
+.selection{
+    float: left;
+    margin: 10px;
+}
 

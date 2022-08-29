@@ -34,4 +34,178 @@ td{
     cursor: pointer;
 }
 
+.kanban-task{
+    width: 1200px;
+    height: auto;
+}
+.kanban-task-category{
+    width: 236px;
+    height: auto;
+    float: left;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    float: left;
+}
+.task-note{
+    border: 1px solid grey;
+    width: 220px;
+    height: auto;
+    margin: auto;
+    margin-bottom: 10px;
+    display: block;
+    background-color: gainsboro;
+    text-align: left;
+}
+.task-note-active{
+    border: 4px solid grey;
+    width: 220px;
+    height: auto;
+    margin: auto;
+    margin-bottom: 10px;
+    display: block;
+    background-color: gainsboro;
+    text-align: left;
+}
+.task-note:hover{
+    box-shadow: 3px 3px 2px gray;
+    display: block;
+    cursor: pointer;
+}
+.task-note label, p{
+    margin: 5px;
+}
+.task-note-title{
+    background-color:whitesmoke;
+}
+.task-note-bottom{
+    display: inline-block;
+    width: 100%;
+}
+.task-note-bottom-appacro{
+    background-color: whitesmoke;
+    float: left;
+    width: 50%;
+    text-align: center;
+    height: auto;
+
+}
+.task-note-bottom-cdate{
+    background-color: lightgrey;
+    float: right;
+    width: 50%;
+    text-align: center;
+    height: auto;
+}
+.task-note-bottom-creator{
+    background-color: lightgrey;
+    float: left;
+    width: 50%;
+    text-align: center;
+    height: auto;
+
+}
+.task-note-bottom-plan{
+    background-color: whitesmoke;
+    float: right;
+    width: 50%;
+    text-align: center;
+    height: auto;
+}
+.row1 h4{
+    margin: auto;
+}
+.row2 h4{
+    margin: auto;
+}
+
+.task-note:hover .hoveredbuttons{
+    display: block;
+}
+.hoveredbuttons{
+    position: absolute;
+    z-index: 2;
+    display: none;
+}
+.actionbutton{
+    width: 100px;
+    height: 30px;
+    background-color: white;
+    transform: translateX(10px);
+}
+.actionbutton:hover{
+    background-color: gray;
+}
+.addtaskpluspane{
+    width: 220px;
+    height: 70px;
+    background-color: lightgrey;
+    margin: auto;
+    margin-bottom: 10px;
+}
+.addtaskpluspane img{
+    margin-top: 15px;
+    vertical-align: middle;
+}
+.addtaskpluspane:hover{
+    box-shadow: 3px 3px 2px gray;
+}
+.expandedtaskpane{
+    width: 700px;
+    height: auto;
+    float: left;
+}
+.expandedtask{
+    background-color: lightgray;
+    width: 660px;
+    height: auto;
+    margin: 10px;
+    padding: 10px;
+    border: 2px solid grey;
+}
+.expandedtask h4{
+    white-space: initial;
+    word-wrap: break-word
+}
+.buttonsetv{
+    float: left;
+    display: block;
+    flex-direction: column;
+    align-items: center;
+    position: fixed;
+    right: 120px;
+}
+.buttonsetv button{
+    width: 150px;
+    height: 50px;
+    margin: 10px;
+    font-family: '8bitpixelised';
+    font-size: 130%;
+    display: block;
+}
+.task-note-sup{
+    background-color: gainsboro;
+}
+.titleandfilters{
+    display: inline-block;
+}
+.titleandfilters h1{
+    float: left;
+    margin-left: 40px;
+    margin-right: 50px;
+}
+.appselect{
+    float: left;
+    margin: auto;
+    top:15px;
+}
+.planselect{
+    float: left;
+    top:15px;
+}
+
+
+
 

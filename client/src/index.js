@@ -11,6 +11,12 @@ import Usermanagement from './components/Usermanagement';
 import LoginService from './services/LoginService';
 import EditAccount from './components/EditAccount';
 import Groupmanagement from './components/Groupmanagement';
+import Taskmanagement from './components/Taskmanagement';
+import Task from './components/Task';
+import AddTask from './components/Addtask';
+import Applications from './components/Applications';
+import AddApp from './components/Addapp';
+import AddPlan from './components/Addplan';
 
 // Renders the start container defined
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -35,13 +41,19 @@ function Start(){
   return(
     <Router>
       <Routes>
-        <Route path="/" element={<Welcome />}/>
         <Route path=":enteredUsername" element={<Usermain />}/>
         <Route path=":enteredUsername/updateprofile" element={<Updateprofile />}/>
         <Route path=":enteredUsername/groupmanagement" element={<Groupmanagement />}/>
         <Route path=":enteredUsername/usermanagement" element={<Usermanagement />}/>
         <Route path=":enteredUsername/usermanagement/adduser" element={<Register />}/>
         <Route path=":enteredUsername/usermanagement/:selectedaccount" element={<EditAccount />}/>
+        <Route path=":enteredUsername/taskmanagement" element={<Taskmanagement />}/>
+        <Route path="/" element={<Welcome />}/>
+        <Route path=":enteredUsername/taskmanagement/:specifictask" element={<Task />}/>
+        <Route path=":enteredUsername/taskmanagement/applications/addtask" element={<AddTask/>}/>
+        <Route path=":enteredUsername/taskmanagement/applications" element={<Applications/>}/>
+        <Route path=":enteredUsername/taskmanagement/applications/addapp" element={<AddApp/>}/>
+        <Route path=":enteredUsername/taskmanagement/applications/addplan" element={<AddPlan/>}/>
       </Routes>
     </Router>
   );

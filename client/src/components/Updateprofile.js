@@ -28,19 +28,23 @@ export default function Updateprofile() {
   // Handle updateform submit event, check all inputs are valid, then check if all inputs acceptable, then set
   const handlesubmitUpdateProfile = async e => {
     e.preventDefault();
-    if(loginService.passwordValid(PwordU) && loginService.emailValid(EmailU)){
-      if(loginService.passwordAcceptable(PwordU) && loginService.emailAcceptable(EmailU)){
+    if((PwordU.length===0 || loginService.passwordAcceptable(PwordU)) && (EmailU.length===0 || loginService.emailAcceptable(EmailU))){
+      if(PwordU.length===0 && EmailU.length===0){
+
+      }
+      else{
         setUpdateSuccess(1);
         setPwordU('');
         setEmailU('');
         await loginService.updateAccount({username: JSON.parse(sessionStorage.getItem('token')).token.username, password: PwordU, email: EmailU});
+        
       }
     }
-    if(loginService.passwordValid(PwordU)===false || loginService.passwordAcceptable(PwordU)===false){
+    if(loginService.passwordValid(PwordU)===true && loginService.passwordAcceptable(PwordU)===false){
       setPInputValid(-1);
       setUpdateSuccess(-1);
     }
-    if(loginService.emailValid(EmailU)===false || loginService.emailAcceptable(EmailU)===false){
+    if(loginService.emailValid(EmailU)===true && loginService.emailAcceptable(EmailU)===false){
       setEInputValid(-1);
       setUpdateSuccess(-1);
     }

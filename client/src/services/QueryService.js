@@ -29,5 +29,53 @@ export default class QueryService{
     addGroup = async credentials => {
         return fetch('http://localhost:3001/addgroup', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(credentials)}).then(data => data.json())
     }
+
+    // POST request at endpoint /getAllTasks to retrieve for task management
+    retrieveAllTasks = async credentials => {
+        return fetch('http://localhost:3001/getAllTasks', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(credentials)}).then(data => data.json())
+    }
+
+    // POST request at endpoint /getAllTasks to retrieve for task management
+    retrieveAllApps = async credentials => {
+        return fetch('http://localhost:3001/getAllApps', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(credentials)}).then(data => data.json())
+    }
+
+    // POST request at endpoint /getAllTasks to retrieve for task management
+    retrieveAllPlans = async credentials => {
+        return fetch('http://localhost:3001/getAllPlans', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(credentials)}).then(data => data.json())
+    }
+    
+    // POST request at endpoint /getTask to retrieve task details
+    getTaskDetails = async credentials => {
+        return fetch('http://localhost:3001/getTask', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(credentials)}).then(data => data.json())
+    }
+
+    // POST request at endpoint /addApp to add new task
+    addApp = async credentials => {
+        return fetch('http://localhost:3001/addApp', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(credentials)}).then(data => data.json())
+    }
+
+    // POST request at endpoint /addTask to add new task
+    addTask = async credentials => {
+        return fetch('http://localhost:3001/addTask', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(credentials)}).then(data => data.json())
+    }
+
+    // POST request at endpoint /getgroup to add new task
+    checkifingroup = async credentials => {
+        return fetch('http://localhost:3001/getgroup', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(credentials)}).then(data => data.json())
+    }
+
+    // POST request at endpoint /getPlansInApp
+    retrievePlansInApp = async credentials => {
+        return fetch('http://localhost:3001/getPlansInApp', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(credentials)}).then(data => data.json())
+    }
+    // POST request at endpoint /addPlan 
+    addPlan = async credentials => {
+        return fetch('http://localhost:3001/addPlan', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(credentials)}).then(data => data.json())
+    }
+    // POST request at endpoint /shiftState
+    shiftTaskState = async credentials => {
+        return fetch('http://localhost:3001/shiftState', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(credentials)}).then(data => data.json())
+    }
 }
 

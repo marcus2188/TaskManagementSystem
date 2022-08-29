@@ -12,7 +12,7 @@ export default function Usermain() {
 
   // States and effects
   React.useEffect(() => {
-    checkGroup();
+    getuserGroups();
   }, [])
   const [userGroups, setUserGroups] = useState([]);
 
@@ -30,11 +30,18 @@ export default function Usermain() {
   const gotogroupmanagement = () => {
     navigate("groupmanagement");
   }
+  const gototaskmanagement = () => {
+    navigate("taskmanagement");
+  }
 
   // Special hooked function to return access group array of strings for the current person logged in
-  const checkGroup = async e => {
+  const getuserGroups = async e => {
     const accountobj = await queryService.checkAccessLevel({username: JSON.parse(sessionStorage.getItem('token')).token.username});
     setUserGroups(accountobj.accessGroups);
+  }
+  const checkGroup = async (uname, groupname) => {
+    const accountobj = await queryService.checkifingroup({username: uname, group: groupname});
+    return accountobj.found;
   }
 
   // JSX with its own css by same name
@@ -50,10 +57,13 @@ export default function Usermain() {
             {userGroups.includes('admin')? <button onClick={gotogroupmanagement}>Group Management</button> : <></>}
           </div>
           <div className='col2'>
-            <button onClick={gobacktowelcome}>Back</button>
+            {(userGroups.includes('M')||userGroups.includes('PM')||userGroups.includes('PL'))?
+            <button onClick={gototaskmanagement}>Task Management</button>
+            : <></>}
             <button onClick={gotoupdateprofile}>Update Profile</button>
           </div>
           <div className='col3'>
+            <button onClick={gobacktowelcome}>Back</button>
             <button onClick={() => {navigate('/'); loginService.logoutUser();}}>Logout</button>
           </div>
         </div>
