@@ -20,6 +20,8 @@ export default function Taskmanagement(){
     const [selectedApp, setSelectedApp] = useState([]);
     const [selectedPlan, setSelectedPlan] = useState([]);
 
+    const [allappsdata, setAllAppsData] = useState([]);
+
     // Navigation hooks and functions
     const navigate = useNavigate();
     const gotousermain = () => {
@@ -66,6 +68,59 @@ export default function Taskmanagement(){
         setAppsData(newlist);
         setSelectedApp(newlist);
     }
+    const getAllAppsRaw = async () => {
+        const allappdata = await queryService.retrieveAllApps({});
+        setAllAppsData(allappdata);
+    }
+
+    // Function to evaluate if that task should be allowed to show buttons based on whether that task app acro has permits including the current account
+    // Decide to show left or right buttons as well, by a boolean array return [leftbutton, rightbutton]
+    const showButton = (taskappacro, state) => {
+        var objtoreturn = {left: '', right: ''};
+        allappsdata.forEach(ap => {
+            if(ap.app_acro===taskappacro){
+                if(state==='open'){
+                    if(userGroups.includes(ap.app_permit_open)){
+                        objtoreturn = {left: false, right: true};
+                    }else{
+                        objtoreturn = {left: false, right: false};
+                    }
+                }else{
+                    if(state==='todo'){
+                        if(userGroups.includes(ap.app_permit_todo)){
+                            objtoreturn = {left: false, right: true}
+                        }else{
+                            objtoreturn = {left: false, right: false}
+                        }
+                    }else{
+                        if(state==='doing'){
+                            if(userGroups.includes(ap.app_permit_doing)){
+                                objtoreturn = {left: true, right: true}
+                            }else{
+                                objtoreturn = {left: false, right: false}
+                            }
+                        }else{
+                            if(state==='done'){
+                                if(userGroups.includes(ap.app_permit_done)){
+                                    objtoreturn = {left: true, right: true}
+                                }else{
+                                    objtoreturn = {left: false, right: false}
+                                }
+                            }else{
+                                if(state==='closed'){
+                                    objtoreturn = {left: false, right: false}
+                                }else{
+                                    console.log("Task does not exist");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
+        return objtoreturn;
+    }
+
     // Function to get all plan mvp names asynchronously for reactselect
     const getAllPlans = async () => {
         const newlist = [];
@@ -86,6 +141,7 @@ export default function Taskmanagement(){
         getAllPlans();
         getAllApps();
         checkGroup();
+        getAllAppsRaw();
     }, [])
 
     // Functions to retrieve react-select values
@@ -108,8 +164,33 @@ export default function Taskmanagement(){
     }
 
     // Functions to move tasks to other states
-    const movetasktostate = async (tasknamestr, destinationstatestr) => {
-        await queryService.shiftTaskState({taskname: tasknamestr, tostate: destinationstatestr});
+    const movetasktostate = async (tasknamestr, state, direction) => {
+        if(state==="open"){
+            if(direction==="right"){
+                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "todo"});
+            }
+        }
+        if(state==="todo"){
+            if(direction==="right"){
+                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "doing"});
+            }
+        }
+        if(state==="doing"){
+            if(direction==="left"){
+                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "todo"});
+            }
+            if(direction==="right"){
+                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "done"});
+            }
+        }
+        if(state==="done"){
+            if(direction==="left"){
+                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "doing"});
+            }
+            if(direction==="right"){
+                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "closed"});
+            }
+        }
     }
 
     // JSX
@@ -122,23 +203,23 @@ export default function Taskmanagement(){
             </div>
             
             <div className="kanban-task">
-                {task_states.map((ts, ind) => {
+                {task_states.map((tsa, ind) => {
                     return(
                         <div key={ind} className="kanban-task-category">
-                            <h2>{ts}</h2>
-                            {userGroups.includes('PL')? (ts==='open'? 
+                            <h2>{tsa}</h2>
+                            {userGroups.includes('PL')? (tsa==='open'? 
                             <div className="addtaskpluspane" onClick={gotoaddtask}>
                                 <img width={40} src={require('../assets/images/circleplus.png')} alt="" />
                             </div> : <></>) : <></>}
                             {taskdata.filter(tsf => selectedApp.includes(tsf.taskappacro))
                                 .filter(tsh => selectedPlan.includes(tsh.taskplan))
-                                .filter(tsk => tsk.taskstate===ts).sort(function(a, b){
+                                .filter(tsk => tsk.taskstate===tsa).sort(function(a, b){
                                 var aa = a.taskcreatedate.split('/').reverse().join(),
                                     bb = b.taskcreatedate.split('/').reverse().join();
                                 return aa < bb ? -1 : (aa > bb ? 1 : 0);
-                                }).map(ts => {
+                                }).map((ts, indh) => {
                                 return(
-                                    <div className="task-note" onClick={() => {gotospecifictask(ts.taskname)}}>
+                                    <div key={indh} className="task-note" onClick={() => {gotospecifictask(ts.taskname)}}>
                                         <div className="task-note-title"><label>{ts.taskname}</label></div>
                                         <div><p>{ts.taskdesc}</p></div>
                                         <div className="task-note-bottom">
@@ -153,47 +234,12 @@ export default function Taskmanagement(){
                                             
                                         </div>
                                         <div className="hoveredbuttons">
-                                            {userGroups.includes('PL')?
-                                                (ts.taskstate==='open'? 
-                                                    <></>
-                                                :
-                                                    (ts.taskstate==='done'?
-                                                        <div>
-                                                            <button className="actionbutton" onClick={() => {movetasktostate(ts.taskname, "doing"); window.location.reload(true);}}>{'<'}</button>
-                                                            <button className="actionbutton" onClick={() => {movetasktostate(ts.taskname, "closed"); window.location.reload(true);}}>{'>'}</button>
-                                                        </div>
-                                                    :
-                                                        <></>
-                                                    )
-                                                )
-                                            :
-                                                <></>
-                                            }
-                                            {userGroups.includes('PM')?
-                                                (ts.taskstate==='open'? 
-                                                    <button className="actionbutton" onClick={() => {movetasktostate(ts.taskname, "todo"); window.location.reload(true);}}>{'>'}</button>
-                                                :
-                                                    <></>
-                                                )
-                                            :
-                                                <></>
-                                            }
-                                            {userGroups.includes('M')?
-                                                (ts.taskstate==='todo'? 
-                                                    <button className="actionbutton" onClick={() => {movetasktostate(ts.taskname, "doing"); window.location.reload(true);}}>{'>'}</button>
-                                                :
-                                                    (ts.taskstate==='doing'?
-                                                        <div>
-                                                            <button className="actionbutton" onClick={() => {movetasktostate(ts.taskname, "todo"); window.location.reload(true);}}>{'<'}</button>
-                                                            <button className="actionbutton" onClick={() => {movetasktostate(ts.taskname, "done"); window.location.reload(true);}}>{'>'}</button>
-                                                        </div>
-                                                    :
-                                                        <></>
-                                                    )
-                                                )
-                                            :
-                                                <></>
-                                            }
+                                            <div>
+                                                {(showButton(ts.taskappacro, tsa)).left? <button className="actionbutton" onClick={() => {movetasktostate(ts.taskname, tsa, "left"); window.location.reload(true);}}>{'<'}</button> : <></>}
+                                                {(showButton(ts.taskappacro, tsa)).right? <button className="actionbutton" onClick={() => {movetasktostate(ts.taskname, tsa, "right"); window.location.reload(true);}}>{'>'}</button> : <></>}
+                                            </div>
+                                            {/* <button onClick={() => {console.log(showButton(ts.taskappacro, tsa))}}>hi</button> */}
+                                            
                                         </div>
                                     </div>
                                 );

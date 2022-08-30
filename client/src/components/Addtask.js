@@ -25,6 +25,7 @@ export default function AddTask(){
     // States for data objects
     const [appData, setAppData] = useState([]);
     const [planData, setPlanData] = useState([]);
+    const [userGroups, setUserGroups] = useState([]);
 
     // Functions for retrieving react-select values
     const getselectapp = (vals) => {
@@ -48,7 +49,10 @@ export default function AddTask(){
     const pipeAppsToOptions = (applist) => {
         const newlist = [];
         applist.forEach(ap => {
-            newlist.push({value: ap.app_acro, label: ap.app_acro});
+            // PERMISSION CHECK! only include apps with current account access lvl in 'permit create'
+            if(userGroups.includes(ap.app_permit_create)){
+                newlist.push({value: ap.app_acro, label: ap.app_acro});
+            }
         });
         return newlist;
     }
@@ -58,6 +62,12 @@ export default function AddTask(){
             newlist.push({value: p.mvpname, label: p.mvpname});
         });
         return newlist;
+    }
+
+    // Special hooked function to return access group array of strings for the current person logged in
+    const getuserGroups = async e => {
+        const accountobj = await queryService.checkAccessLevel({username: JSON.parse(sessionStorage.getItem('token')).token.username});
+        setUserGroups(accountobj.accessGroups);
     }
 
 
@@ -92,6 +102,7 @@ export default function AddTask(){
     React.useEffect(() => {
         getAllApps();
         getAllPlans();
+        getuserGroups();
     }, [])
 
     // Call these on value change

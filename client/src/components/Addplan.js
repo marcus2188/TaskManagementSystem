@@ -25,6 +25,7 @@ export default function AddPlan(){
     // States for data
     const [groupsData, setGroupsData] = useState([]);
     const [appsData, setAppsData] = useState([]);
+    const [userGroups, setUserGroups] = useState([]);
 
     // Function to get all groups asynchronously
     const getAllGroups = async () => {
@@ -35,6 +36,12 @@ export default function AddPlan(){
     const getAllApps = async () => {
         const allappdata = await queryService.retrieveAllApps({});
         setAppsData(allappdata);
+    }
+
+    // Special hooked function to return access group array of strings for the current person logged in
+    const getuserGroups = async e => {
+        const accountobj = await queryService.checkAccessLevel({username: JSON.parse(sessionStorage.getItem('token')).token.username});
+        setUserGroups(accountobj.accessGroups);
     }
 
     // React Select piping functions to convert db obj to list of access strings, includes only PM M PL
@@ -84,6 +91,7 @@ export default function AddPlan(){
     React.useEffect(() => {
         getAllGroups();
         getAllApps();
+        getuserGroups();
     })
 
     // JSX
