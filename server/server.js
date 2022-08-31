@@ -19,12 +19,20 @@ app.use(bodyParser.json());
 app.listen(3001, () => console.log('[SUCCESS] Express server up and running'));
 
 // RUN FOREVER PORTION
-// Create MYSQL connection for db
-const conn = mysql.createConnection({host: 'localhost', user: 'root', password: 'conjugatebase', database: 'nodelogin'});
+// Create MYSQL connection for db / 'localhost', 'host.docker.internal'
+const conn = mysql.createConnection({host: 'host.docker.internal', user: 'root', password: 'conjugatebase', database: 'nodelogin'});
 conn.connect((err) =>{
     if(err) throw err;
     console.log('[SUCCESS] MYSQL DB ready');
 });
+
+// For docker run backend:
+// docker build -f Dockerfile -t server .
+// docker run -it -p 3001:3001 server
+
+// For docker run frontend:
+// docker build -f Dockerfile -t client .
+// docker run -it -p 4000:3000 client
 
 // Begin receiving POST requests at endpoint /login
 app.post('/login', (req, res)=>{
