@@ -167,28 +167,28 @@ export default function Taskmanagement(){
     const movetasktostate = async (tasknamestr, state, direction) => {
         if(state==="open"){
             if(direction==="right"){
-                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "todo"});
+                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "todo", curuser: JSON.parse(sessionStorage.getItem('token')).token.username});
             }
         }
         if(state==="todo"){
             if(direction==="right"){
-                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "doing"});
+                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "doing", curuser: JSON.parse(sessionStorage.getItem('token')).token.username});
             }
         }
         if(state==="doing"){
             if(direction==="left"){
-                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "todo"});
+                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "todo", curuser: JSON.parse(sessionStorage.getItem('token')).token.username});
             }
             if(direction==="right"){
-                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "done"});
+                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "done", curuser: JSON.parse(sessionStorage.getItem('token')).token.username});
             }
         }
         if(state==="done"){
             if(direction==="left"){
-                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "doing"});
+                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "doing", curuser: JSON.parse(sessionStorage.getItem('token')).token.username});
             }
             if(direction==="right"){
-                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "closed"});
+                await queryService.shiftTaskState({taskname: tasknamestr, tostate: "closed", curuser: JSON.parse(sessionStorage.getItem('token')).token.username});
             }
         }
     }

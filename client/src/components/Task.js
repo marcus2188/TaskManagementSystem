@@ -92,6 +92,7 @@ export default function Task(){
                             <div><label>Task Creator: {referencedTask.taskcreator}</label></div>
                             <div><label>Task Owner: {referencedTask.taskowner}</label></div>
                             <div><label>Task Date Created: {referencedTask.taskcreatedate}</label></div>
+                            <div><label>Task Audit Trail: {referencedTask.taskaudittrail}</label></div>
                         </div>
                         <div><h4>{referencedTask.tasknotes}</h4></div>
                     </div>

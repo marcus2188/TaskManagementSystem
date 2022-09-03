@@ -19,8 +19,8 @@ app.use(bodyParser.json());
 app.listen(3001, () => console.log('[SUCCESS] Express server up and running'));
 
 // RUN FOREVER PORTION
-// Create MYSQL connection for db / 'localhost', 'host.docker.internal'
-const conn = mysql.createConnection({host: 'host.docker.internal', user: 'root', password: 'conjugatebase', database: 'nodelogin'});
+// Create MYSQL connection for db /host 'localhost', 'host.docker.internal' /port 3307, 3306
+const conn = mysql.createConnection({host: 'localhost', user: 'root', password: 'conjugatebase', database: 'nodelogin'});
 conn.connect((err) =>{
     if(err) throw err;
     console.log('[SUCCESS] MYSQL DB ready');
@@ -322,7 +322,10 @@ app.post('/addTask', (req, res)=>{
         if(er){
             res.send({operationStatus: 'FAIL', reason: er.code});
         }else{
-            let disquery = `INSERT INTO task(Task_name, Task_description, Task_notes, Task_id, Task_plan, Task_App_Acronym, Task_state, Task_creator, Task_owner, Task_createDate) VALUES ('${req.body.tname}', '${req.body.tdesc}', '${req.body.tnotes}', '${req.body.taskAppAcro+'_'+re[0].App_Rnumber}', '${req.body.taskPlan}', '${req.body.taskAppAcro}', 'open', '${req.body.curuser}', '', '${req.body.curdate}')`
+            var today = new Date();
+            var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+            audittrailstr = req.body.curuser + " created this task at " + req.body.curdate + ", " + time;
+            let disquery = `INSERT INTO task(Task_name, Task_description, Task_notes, Task_id, Task_plan, Task_App_Acronym, Task_state, Task_creator, Task_owner, Task_createDate, Task_auditTrail) VALUES ('${req.body.tname}', '${req.body.tdesc}', '${req.body.tnotes}', '${req.body.taskAppAcro+'_'+re[0].App_Rnumber}', '${req.body.taskPlan}', '${req.body.taskAppAcro}', 'open', '${req.body.curuser}', '', '${req.body.curdate}', '${audittrailstr}')`
             let qq = conn.query(disquery, (err, result) => {
                 if(err){
                     console.log("[FAIL] Error caught: " + err.code);
@@ -390,12 +393,17 @@ app.post('/addPlan', (req, res)=>{
 
 // shift Task
 app.post('/shiftState', (req, res)=>{
-    let thisquery = `UPDATE task SET Task_state = '${req.body.tostate}' WHERE Task_name = '${req.body.taskname}'`
-    conn.query(thisquery, (err, result)=>{
-        if(err){
-            throw err;
-        }else{
-            console.log("[SUCCESS] A task state is updated");
-        }
-    });
+    var today = new Date();
+    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    strtoadd = `\n\n Task moved to ${req.body.tostate} by ${req.body.curuser} on ${time}.`; 
+    conn.query(`SELECT Task_auditTrail FROM task WHERE Task_name = '${req.body.taskname}'`, (er, resu) => {
+        let thisquery = `UPDATE task SET Task_state = '${req.body.tostate}', Task_auditTrail = '${resu[0].Task_auditTrail + strtoadd}' WHERE Task_name = '${req.body.taskname}'`
+        conn.query(thisquery, (err, result)=>{
+            if(err){
+                throw err;
+            }else{
+                console.log("[SUCCESS] A task state is updated");
+            }
+        });
+    })
 })

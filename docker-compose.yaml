@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+  mysqldb:
+    image: mysql:latest
+    environment: 
+      MYSQL_ROOT_PASSWORD: conjugatebase
+    ports:
+      - "3307:3306"
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "4000:3000"
+
+  backend:
+    build: 
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    # volumes:
+    #   - logs:/server/logs
+    #   - ./server:/server
+    # depends_on:
+    #   - mysqldb
+
+# volumes:
+#   logs:
+     
